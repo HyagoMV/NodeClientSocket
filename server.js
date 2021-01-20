@@ -1,38 +1,57 @@
 // Importand o módulo NET
 const net = require('net');
 
+// --------------------------------------------------------
+// Classe: net.Server
+// --------------------------------------------------------
 
 // Cria um servido TCP ou IPC
-const server = net.createServer();
+//const server = net.createServer();
+const server = new net.Server();
 
 // Async
-// Emite -> Event: 'listening'
 server.listen({
   port: process.env.PORT || 9999,
   backlog: 1
 });
 
+// O servidor tem 5s para aceitar conexões
+setTimeout(() => {
+  server.close();
+}, 5000);
 
-
-// --------------------------------------------------------
-// Classe: net.Server
-// --------------------------------------------------------
 
 // Event: 'close'
 server.on('close', () => {
-  console.log('[net.Server] Serivor fechado')
+  console.log('[net.Server] [EVENT] Serivor fechado')
 });
 
 // Event: 'connection'
-server.on('connection', (clientSocket) => {
-  console.log('[net.Server] Cliente conectado')
+server.on('connection', (client) => {
+  console.log('[net.Server] [EVENT] [connection] Cliente conectado')
 
-  console.log(clientSocket.bytesWritten)
+  client.setTimeout(5000)
+
+  // Event: 'error'
+  client.on('error', (err) => {
+    switch (err.code) {
+      case 'ECONNRESET': {
+        console.log('\t[net.Socket] [ERROR] [Client] O cliente fechou a conexão abruptamente ');
+        break;
+      }
+    }
+  })
+
+  // Event: 'timeout'
+  client.on('timeout', () => {
+    console.log('[net.Socket] [EVENT] [timeout] O socket expirou devido a inatividade')
+    client.end()
+  });
 });
 
 // Event: 'error'
 server.on('error', (err) => {
-  console.log('[net.Server] Um erro ocorreu')
+  console.log('[net.Server] [EVENT] [error] Um erro ocorreu')
   console.log(`\t[MESSAGE] ${err.message}`);
 });
 
@@ -40,14 +59,10 @@ server.on('error', (err) => {
 server.on('listening', () => {
   const { address, port } = server.address();
 
-  console.log('[net.Server] Servidor está ouvindo...')
+  console.log('[net.Server] [EVENT] [listening] Servidor está ouvindo...')
   console.log(`\t IP ${address}`)
   console.log(`\t PORT ${port}`)
 })
-
-
-
-
 
 
 // --------------------------------------------------------
@@ -56,40 +71,37 @@ server.on('listening', () => {
 
 // Event: 'close'
 server.on('close', (hadError) => {
-  if (hadError)
-    console.log('[net.Socket] Socket fechado com erro');
-  else
-    console.log('[net.Socket] Socket fechado sem erro');
+  const append = hadError ? 'com erro' : 'sem erro';
+  console.log('[net.Socket] [close] Socket fechado', append);
 });
 
 // Event: 'connect'
 server.on('connect', () => {
-  console.log('[net.Socket] Conexão com socket estabelecida');
+  console.log('[net.Socket] [connect] Conexão com socket estabelecida');
 });
 
 // Event: 'data'
 server.on('data', (data) => {
-  console.log('[net.Socket] Dados recebidos');
+  console.log('[net.Socket] [data] Dados recebidos');
 });
 
 // Event: 'drain'
 server.on('drain', () => {
-  console.log('[net.Socket] O buffer de gravação está vazio');
+  console.log('[net.Socket] [drain] O buffer de gravação está vazio');
 });
 
 // Event: 'end'
 server.on('end', () => {
-  console.log('[net.Socket] Cliente desconectado')
+  console.log('[net.Socket] [end] Cliente desconectado')
 });
 
 // Event: 'error'
 server.on('error', (err) => {
-  console.log('[net.Socket] Ocorreu um erro:')
-  console.log(`\t[MESSAGE] ${err.message}`);
+  console.log(`[net.Socket] [error] Ocorreu um erro: ${err.message}`);
 
   switch (err.code) {
     case 'EADDRINUSE': {
-      console.log('[net.Socket] O sistema operacional atribuirá uma porta não utilizada arbitrária');
+      console.log('[net.Socket] [EADDRINUSE] Uma porta será atribuida arbitráriament');
       server.listen(0);
       break;
     }
@@ -98,15 +110,15 @@ server.on('error', (err) => {
 
 // Event: 'lookup'
 server.on('lookup', () => {
-  console.log('[net.Socket] Nome do host resolvido')
+  console.log('[net.Socket] [lookup] Nome do host resolvido')
 });
 
 // Event: 'ready'
 server.on('ready', () => {
-  console.log('[net.Socket] O socket está pronto para ser usado')
+  console.log('[net.Socket] [ready] O socket está pronto para ser usado')
 });
 
 // Event: 'timeout'
 server.on('timeout', () => {
-  console.log('[net.Socket] O socket expirou devido a inatividade')
+  console.log('[net.Socket] [timeout] O socket expirou devido a inatividade')
 });

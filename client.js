@@ -1,68 +1,74 @@
 // Importand o módulo NET
 const net = require('net');
 
-const socket = net.createConnection({
+const client = net.createConnection({
   port: 8888
 });
 
+client.setTimeout(5000); // 1s
 
-// --------------------------------------------------------
+/// --------------------------------------------------------
 // Classe: net.Socket
 // --------------------------------------------------------
 
 // Event: 'close'
-socket.on('close', (hadError) => {
-  if (hadError)
-    console.log('[net.Socket] Socket fechado com erro');
-  else
-    console.log('[net.Socket] Socket fechado sem erro');
+client.on('close', (hadError) => {
+  const append = hadError ? 'com erro' : 'sem erro';
+  console.log('[net.Socket] [EVENT] [close] Socket fechado', append);
 });
 
 // Event: 'connect'
-socket.on('connect', () => {
-  console.log('[net.Socket] Conexão com socket estabelecida');
+client.on('connect', () => {
+  console.log('[net.Socket] [EVENT] [connect] Conexão com socket estabelecida');
 });
 
 // Event: 'data'
-socket.on('data', (data) => {
-  console.log('[net.Socket] Dados recebidos');
+client.on('data', (data) => {
+  console.log('[net.Socket] [EVENT] [data] Dados recebidos');
 });
 
 // Event: 'drain'
-socket.on('drain', () => {
-  console.log('[net.Socket] O buffer de gravação está vazio');
+client.on('drain', () => {
+  console.log('[net.Socket] [EVENT] [drain] O buffer de gravação está vazio');
 });
 
 // Event: 'end'
-socket.on('end', () => {
-  console.log('[net.Socket] Cliente desconectado')
+client.on('end', () => {
+  console.log('[net.Socket] [EVENT] [end] Cliente desconectado')
 });
 
 // Event: 'error'
-socket.on('error', (err) => {
-  console.log('[net.Socket] Ocorreu um erro:')
-  console.log(`\t[MESSAGE] ${err.message}`);
+client.on('error', (err) => {
+  console.log(`[net.Socket] [EVENT] [error] Ocorreu um erro:`);
 
   switch (err.code) {
     case 'EADDRINUSE': {
-      console.log('[net.Socket] O sistema operacional atribuirá uma porta não utilizada arbitrária');
-      socket.listen(0);
+      console.log('\t[net.Socket] [ERROR] [Server] Uma porta será atribuida arbitráriamente');
+      client.listen(0);
+      break;
+    }
+    case 'ECONNREFUSED': {
+      console.log('\t[net.Socket] [ERROR] [Server] Conexão recusada pelo servidor')
+      break;
+    }
+    case 'ECONNRESET': {
+      console.log('\t[net.Socket] [ERROR] [Server] O servidor fechou a conexão abruptamente ');
       break;
     }
   }
 });
 
 // Event: 'lookup'
-socket.on('lookup', () => {
-  console.log('[net.Socket] Nome do host resolvido')
+client.on('lookup', () => {
+  console.log('[net.Socket] [EVENT] [lookup] Nome do host resolvido')
 });
 
 // Event: 'ready'
-socket.on('ready', () => {
-  console.log('[net.Socket] O socket está pronto para ser usado')
+client.on('ready', () => {
+  console.log('[net.Socket] [EVENT] [ready] O socket está pronto para ser usado')
 });
 
 // Event: 'timeout'
-socket.on('timeout', () => {
-  console.log('[net.Socket] O socket expirou devido a inatividade')
+client.on('timeout', () => {
+  console.log('[net.Socket] [EVENT] [timeout] O socket expirou devido a inatividade')
 });
