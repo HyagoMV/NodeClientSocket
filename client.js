@@ -4,11 +4,11 @@ const net = require('net');
 
 // createConnection
 const cliSocket = net.createConnection({
-  port: 8888
+  port: 444
 });
 
 
-const time = 10000;
+const time = 50000;
 console.log('[net.Socket] [Client] Timeout será definido para', time);
 cliSocket.setTimeout(time)
 
@@ -26,7 +26,7 @@ cliSocket.on('close', (hadError) => {
 // Class: net.Socket
 // Event: 'connect'
 cliSocket.on('connect', () => {
-  console.log('[net.Socket] [EVENT] [connect] Conexão com socket estabelecida');
+  console.log('[net.Socket] [EVENT] [connect] Conexão estabelecida');
 
   console.log('\tServer IP Address', cliSocket.remoteAddress)
   console.log('\tServer TCP Port', cliSocket.remotePort)
@@ -45,7 +45,7 @@ cliSocket.on('drain', () => {
 
 // Event: 'end'
 cliSocket.on('end', () => {
-  console.log('[net.Socket] [EVENT] [end] Cliente desconectado')
+  console.log('[net.Socket] [EVENT] [end] Fim conexão')
 });
 
 // Event: 'error'
@@ -67,6 +67,14 @@ cliSocket.on('error', (err) => {
       console.log('\t[net.Socket] [ERROR] [Server] O servidor fechou a conexão abruptamente ');
       break;
     }
+    case 'ERR_STREAM_WRITE_AFTER_END': {
+
+      break;
+    }
+    default: {
+      console.log(err.code);
+      break;
+    }
   }
 });
 
@@ -78,6 +86,15 @@ cliSocket.on('lookup', () => {
 // Event: 'ready'
 cliSocket.on('ready', () => {
   console.log('[net.Socket] [EVENT] [ready] O socket está pronto para ser usado')
+
+  setInterval(() => {
+    cliSocket.write("A")
+  }, 2000);
+
+  setTimeout(() => {
+    cliSocket.end();
+  }, 5000);
+
 });
 
 // Event: 'timeout'

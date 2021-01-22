@@ -13,7 +13,8 @@ const serSocket = new net.Server();
 // IP 0.0.0.0 ouvirá em todos os IPs
 serSocket.listen({
   //host: "172.25.160.1",
-  port: process.env.PORT || 9999,
+  //port: process.env.PORT || 9999,
+  port: 444,
   backlog: 1
 });
 
@@ -32,12 +33,12 @@ serSocket.on('close', () => {
 // Event: 'connection'
 // <net.Socket> cliSocket
 serSocket.on('connection', (cliSocket) => {
-  console.log('[net.Server] [EVENT] [connection] Cliente conectado')
+  console.log('[net.Server] [EVENT] [connection] Conexão estabelecida')
 
   console.log('\tClient IP Address', cliSocket.remoteAddress)
   console.log('\tClient TCP Port', cliSocket.remotePort)
 
-  const time = 10000;
+  const time = 50000;
   console.log('[net.Server] [Client] Timeout será definido para', time);
   cliSocket.setTimeout(time)
 
@@ -45,10 +46,15 @@ serSocket.on('connection', (cliSocket) => {
   cliSocket.on('error', (err) => {
     switch (err.code) {
       case 'ECONNRESET': {
-        console.log('\t[net.Socket] [ERROR] [Client] O cliSockete fechou a conexão abruptamente ');
+        //console.log('\t[net.Socket] [ERROR] [Client] O clietne fechou a conexão abruptamente');
+        console.log('\t[net.Socket] [ERROR] [Client] O cliete fechou a conexão com a flag RST e não com a flag FIN');
         break;
       }
     }
+
+    cliSocket.on('end', () => {
+      console.log('\t[net.Socket] [EVENT] [end] [Client] O cliete fechou a conexão com a flag FIN');
+    });
   })
 
   // Event: 'timeout'
