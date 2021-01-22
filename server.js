@@ -1,5 +1,5 @@
 // Importand o módulo NET
-const net = require('net');
+import net from 'net';
 
 // --------------------------------------------------------
 // Classe: net.Server
